@@ -5,16 +5,16 @@ from pydub import AudioSegment
 
 class FlexibleTranscriber:
     def __init__(self, engine='google'):
-        """initialize wih specified recoginzer engine"""
-        self.recoginzer = sr.Recognizer()
+        """initialize wih specified recognizer engine"""
+        self.recognizer = sr.Recognizer()
         self.engine = engine
         # optimize settings
-        self.recoginzer.energy_threshold = 300
-        self.recoginzer.dynamic_energy_threshold = True
+        self.recognizer.energy_threshold = 300
+        self.recognizer.dynamic_energy_threshold = True
 
         
     def preprocess_audio(self, audio_path):
-        """optimize audo for better recognition"""
+        """optimize audio for better recognition"""
         audio = AudioSegment.from_file(audio_path)
         # convert to mono and normalize volume
         if audio.channels > 1:
@@ -32,14 +32,14 @@ class FlexibleTranscriber:
         preprocessed_path = self.preprocess_audio(audio_pah)
         try:
             with sr.AudioFile(preprocessed_path.name) as source:
-               self.recoginzer.adjust_for_ambient_noise(source, duration=1)
-               audio_data = self.recoginzer.record(source)
+               self.recognizer.adjust_for_ambient_noise(source, duration=1)
+               audio_data = self.recognizer.record(source)
                
-            # perform recoginzer
+            # perform recognizer
             if self.engine == 'google':
-                text =  self.recoginzer.recoginze_google(audio_data, language=language)
-            elif self.engine == 'sphinx':
-                text = self.recoginzer.recognize_sphinx(audio_data, language=language)
+                text =  self.recognizer.recognize_google(audio_data, language=language)
+            else:
+                text = self.recognizer.recognize_sphinx(audio_data, language=language)
                 
             return {
                 'text': text,
@@ -63,9 +63,14 @@ class FlexibleTranscriber:
                 'error': f'Request error from {self.engine} service; {str(e)}'
             }
         finally:
-            os.unlink(preprocessed_path)
+            # os.unlink(preprocessed_path)
+            pass
 
-def __main__():
-    transcriber = FlexibleTranscriber(engine='google')
-    result = transcriber.transcribe_file('sample_audio.wav', language='en-US')
+if __name__ == '__main__':
+    transcriber = FlexibleTranscriber(engine='sphinx')
+    result = transcriber.transcribe_file('./resource/jp-1.mp4', language='ja-JP')
+    if result['success']:
+        print(f"Transcription preview: {result['text'][:200] + '...' if len(result['text']) > 200 else result['text']}")
+    else:
+        print(f"Error: {result['error']}")
   

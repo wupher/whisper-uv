@@ -61,7 +61,7 @@ def transcribe_audio_file(audio_path, model_size='base', language=None):
 
 
 if __name__ == "__main__":
-    audio_file = "./resource/jp-long.mp3"
+    audio_file = "./resource/jp-1.mp4"
     result = transcribe_audio_file(audio_file, model_size='base', language='ja')
     print(f"\nTranscription preview:")
     print(result['text'][:200] + "..." if len(result['text']) > 200 else result['text'])
