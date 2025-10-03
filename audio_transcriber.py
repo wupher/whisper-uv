@@ -26,38 +26,38 @@ class AudioTranscriber:
 
         start_time = time.time()
         options = {"language": language} if language else {}
-        result = self.model.transcribe(audio_path, **options)
+        transcribe_result = self.model.transcribe(audio_path, **options)
 
         processing_time = time.time() - start_time
         print(f"√ Completed in {processing_time:.1f} seconds")
-        print(f"Detected language: {result['language']}")
+        print(f"Detected language: {transcribe_result['language']}")
 
         return {
-            'text': result['text'].strip(),
-            'language': result['language'],
-            'segments': result.get('segments', []),
+            'text': transcribe_result['text'].strip(),
+            'language': transcribe_result['language'],
+            'segments': transcribe_result.get('segments', []),
             'processing_time': processing_time
         }
 
-    def save_transcription(self, result, output_path):
+    def save_transcription(self, result_map, output_path):
         """ Save transcription result to a text file."""
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write("==== Transcription Result ==== \n")
-            f.write(f"Language: {result['language']} \n")
-            f.write(f"Processing Time: {result['processing_time']:.1f} seconds \n")
+            f.write(f"Language: {result_map['language']} \n")
+            f.write(f"Processing Time: {result_map['processing_time']:.1f} seconds \n")
             f.write("=" * 40 + "\n\n")
-            f.write(result['text'])
+            f.write(result_map['text'])
         print(f"Transcription saved to: {output_path}")
 
 
 def transcribe_audio_file(audio_path, model_size='base', language=None):
     """Simple function to transcribe an audio file"""
     transcriber = AudioTranscriber(model_size=model_size)
-    result = transcriber.transcribe_file(audio_path, language=language)
+    the_result = transcriber.transcribe_file(audio_path, language=language)
     audio_name = Path(audio_path).stem
     output_path = f"{audio_name}_transcription.txt"
-    transcriber.save_transcription(result, output_path)
-    return result
+    transcriber.save_transcription(the_result, output_path)
+    return the_result
 
 
 if __name__ == "__main__":
